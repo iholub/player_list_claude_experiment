@@ -1,0 +1,5 @@
+services:
+  app:
+    image: hello1:0.1.0-SNAPSHOT
+    ports:
+      - "8080:8080"
