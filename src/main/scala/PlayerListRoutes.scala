@@ -21,6 +21,14 @@ object PlayerListRoutes:
   private object AddPlayersRequest:
     given Decoder[AddPlayersRequest] = deriveDecoder[AddPlayersRequest]
 
+  private case class RemovePlayerRequest(player: String)
+  private object RemovePlayerRequest:
+    given Decoder[RemovePlayerRequest] = deriveDecoder[RemovePlayerRequest]
+
+  private case class RemovePlayersRequest(players: List[String])
+  private object RemovePlayersRequest:
+    given Decoder[RemovePlayersRequest] = deriveDecoder[RemovePlayersRequest]
+
   def routes(service: PlayerListService): HttpRoutes[IO] =
     HttpRoutes.of[IO]:
       case req @ POST -> Root / "player-lists" =>
@@ -64,7 +72,7 @@ object PlayerListRoutes:
 
       case req @ DELETE -> Root / "player-lists" / UUIDVar(id) / "players" =>
         for
-          body <- req.as[AddPlayerRequest]
+          body <- req.as[RemovePlayerRequest]
           opt <- service.removePlayer(id, body.player)
           resp <- opt match
             case Some(pl) => Ok(pl)
@@ -73,7 +81,7 @@ object PlayerListRoutes:
 
       case req @ DELETE -> Root / "player-lists" / UUIDVar(id) / "players" / "batch" =>
         for
-          body <- req.as[AddPlayersRequest]
+          body <- req.as[RemovePlayersRequest]
           opt <- service.removePlayers(id, body.players)
           resp <- opt match
             case Some(pl) => Ok(pl)
